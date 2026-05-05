@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA | Behavioral Stress Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 2.5rem; width: 100%; max-width: 700px; }
+        .recovery-card { background: rgba(255, 255, 255, 0.05); border-left: 4px solid #3b82f6; transition: all 0.3s; }
+        .input-box:focus { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="glass animate__animated animate__fadeIn">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-black text-blue-400 tracking-tighter">AURA</h1>
+            <p class="text-slate-500 text-xs mt-1 uppercase tracking-widest">Biometric Stress Analysis Engine</p>
+            <div class="text-[10px] text-slate-600 mt-3 font-mono bg-slate-900/50 inline-block px-3 py-1 rounded-full">
+                ID: DILRAG MADHURESH V | MCA(AI/ML) | 25MCAR0266
+            </div>
+        </div>
+
+        <!-- Testing Interface -->
+        <div id="test-area">
+            <div class="bg-slate-900/80 p-5 rounded-2xl mb-6 border border-slate-800">
+                <p class="text-blue-400 text-[10px] uppercase font-bold mb-2">Required Input:</p>
+                <p id="target-text" class="text-xl text-slate-200 italic leading-relaxed">
+                    Peace begins with a relaxed mind and a steady breath.
+                </p>
+            </div>
+
+            <textarea id="typing-box" 
+                class="w-full bg-slate-900 border-2 border-slate-800 rounded-2xl p-5 text-lg text-white outline-none transition-all input-box"
+                rows="3" 
+                placeholder="Type the phrase above and hit ENTER to analyze..."></textarea>
+
+            <div class="flex justify-between items-center mt-6">
+                <div class="flex gap-6">
+                    <div>
+                        <p class="text-[10px] text-slate-500 uppercase">Elapsed Time</p>
+                        <p id="timer" class="text-xl font-mono text-blue-400">0.0s</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-500 uppercase">Submission</p>
+                    <p class="text-sm font-bold text-slate-400 italic">Press [ENTER] to calculate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Area (Hidden) -->
+        <div id="result-area" class="hidden animate__animated animate__zoomIn">
+            <div class="flex items-center gap-8 mb-8 border-b border-white/10 pb-8">
+                <div id="score-ring" class="relative flex-shrink-0 w-32 h-32 rounded-full border-[10px] flex items-center justify-center">
+                    <span id="final-score" class="text-3xl font-black">0%</span>
+                </div>
+                <div>
+                    <h2 id="status-text" class="text-3xl font-bold tracking-tight"></h2>
+                    <p id="status-desc" class="text-slate-400 text-sm mt-1"></p>
+                </div>
+            </div>
+
+            <h3 class="text-blue-400 text-xs font-bold uppercase mb-4 tracking-widest">Recommended Recovery Protocol</h3>
+            <div id="recovery-steps" class="space-y-3">
+                <!-- Instructions injected here -->
+            </div>
+
+            <button onclick="window.location.reload()" class="mt-8 w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition shadow-xl uppercase tracking-widest text-sm">
+                Restart Analysis
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const target = "Peace begins with a relaxed mind and a steady breath.";
+        const box = document.getElementById('typing-box');
+        let startTime, timerInterval, running = false;
+
+        box.addEventListener('keydown', (e) => {
+            if(!running && e.key !== 'Enter') {
+                startTime = new Date();
+                running = true;
+                timerInterval = setInterval(() => {
+                    document.getElementById('timer').innerText = ((new Date() - startTime)/1000).toFixed(1) + "s";
+                }, 100);
+            }
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                processResults();
+            }
+        });
+
+        function processResults() {
+            clearInterval(timerInterval);
+            const time = (new Date() - startTime)/1000;
+            const input = box.value;
+            
+            // Biometric calculation logic
+            let errors = Math.abs(target.length - input.length);
+            for(let i=0; i<Math.min(target.length, input.length); i++) {
+                if(target[i] !== input[i]) errors++;
+            }
+            const wpm = (input.split(" ").length / (time / 60));
+            let score = Math.round((errors * 8) + (wpm / 1.8));
+            if(score > 100) score = 100; if(score < 5) score = 5;
+
+            showOutput(score);
+        }
+
+        function showOutput(score) {
+            document.getElementById('test-area').classList.add('hidden');
+            document.getElementById('result-area').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score + "%";
+            
+            const status = document.getElementById('status-text');
+            const desc = document.getElementById('status-desc');
+            const ring = document.getElementById('score-ring');
+            const steps = document.getElementById('recovery-steps');
+            
+            let data = {};
+
+            if(score < 30) {
+                data = {
+                    title: "ZEN STATE", color: "#10b981", desc: "Optimal cognitive performance.",
+                    advice: [
+                        "🧬 <b>Maintain Flow:</b> Your focus is peaked. Avoid checking notifications for the next 45 mins.",
+                        "💧 <b>Hydration:</b> Sip water to keep your neural processing speed consistent.",
+                        "🧘 <b>Micro-gratitude:</b> Take 10 seconds to acknowledge one thing you're proud of today."
+                    ]
+                };
+            } else if(score < 55) {
+                data = {
+                    title: "BALANCED", color: "#3b82f6", desc: "Healthy alertness, slight fatigue.",
+                    advice: [
+                        "👀 <b>20-20-20 Rule:</b> Look at an object 20 feet away for 20 seconds to relax eye muscles.",
+                        "🪑 <b>Posture Check:</b> Roll your shoulders back and uncross your legs to improve blood flow.",
+                        "🌬️ <b>Single Breath:</b> Take one very deep inhale through the nose and a long 'sigh' exhale."
+                    ]
+                };
+            } else if(score < 80) {
+                data = {
+                    title: "AGITATED", color: "#f59e0b", desc: "Neural stress signals detected.",
+                    advice: [
+                        "😮‍💨 <b>Box Breathing:</b> Inhale for 4s, Hold 4s, Exhale 4s, Hold 4s. Repeat 3 times.",
+                        "🖐️ <b>5-4-3-2-1 Grounding:</b> Name 5 things you see and 4 things you can touch right now.",
+                        "☕ <b>Caffeine Halt:</b> Avoid further stimulants for the next 3 hours."
+                    ]
+                };
+            } else {
+                data = {
+                    title: "BURNOUT", color: "#ef4444", desc: "Critical cognitive overload.",
+                    advice: [
+                        "🚶 <b>Immediate Exit:</b> Physically leave your desk. Walk for at least 2 minutes.",
+                        "❄️ <b>Thermal Reset:</b> Splash cold water on your face or hold a cold beverage container.",
+                        "📵 <b>Digital Fast:</b> Put your phone in another room for 15 minutes. Your brain needs silence."
+                    ]
+                };
+            }
+
+            status.innerText = data.title;
+            status.style.color = data.color;
+            ring.style.borderColor = data.color;
+            desc.innerText = data.desc;
+            
+            steps.innerHTML = data.advice.map(s => `
+                <div class="recovery-card p-4 rounded-xl text-sm leading-relaxed" style="border-color: ${data.color}">
+                    ${s}
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
