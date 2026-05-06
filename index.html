@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA | Behavioral Stress Analyzer</title>
+    <meta name="description" content="AURA - A biometric behavioral stress analysis tool that uses typing patterns to estimate cognitive stress levels.">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 80px rgba(59,130,246,0.05);
+        }
+
+        .recovery-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 4px solid #3b82f6;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .recovery-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateX(4px);
+        }
+
+        #typing-box {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid rgba(100, 116, 139, 0.4);
+            border-radius: 16px;
+            padding: 1.25rem;
+            font-size: 1.1rem;
+            color: white;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+        }
+
+        #typing-box:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        #typing-box::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        .aura-title {
+            background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+        }
+
+        .pulse-ring {
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(59,130,246,0); }
+        }
+
+        .restart-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .restart-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .stat-chip {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass animate__animated animate__fadeIn">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="aura-title">AURA</h1>
+            <p class="text-slate-500 text-xs mt-2 uppercase tracking-widest font-semibold">Biometric Stress Analysis Engine</p>
+            <div class="text-[10px] text-slate-500 mt-3 font-mono bg-slate-900/70 inline-block px-4 py-1.5 rounded-full border border-slate-800">
+                ID: DILRAG MADHURESH V &nbsp;|&nbsp; MCA(AI/ML) &nbsp;|&nbsp; 25MCAR0266
+            </div>
+        </div>
+
+        <!-- Testing Interface -->
+        <div id="test-area">
+            <div class="bg-slate-900/80 p-5 rounded-2xl mb-6 border border-slate-700/50">
+                <p class="text-blue-400 text-[10px] uppercase font-bold mb-2 tracking-widest">📋 Type this phrase exactly:</p>
+                <p id="target-text" class="text-xl text-slate-200 italic leading-relaxed font-medium">
+                    Peace begins with a relaxed mind and a steady breath.
+                </p>
+            </div>
+
+            <textarea 
+                id="typing-box"
+                rows="3"
+                placeholder="Start typing the phrase above... Timer starts automatically."
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false">
+            </textarea>
+
+            <div class="flex justify-between items-center mt-5">
+                <div class="stat-chip flex gap-6">
+                    <div>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider">Elapsed Time</p>
+                        <p id="timer" class="text-xl font-mono text-blue-400 font-bold">0.0s</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-wider">Submit</p>
+                    <p class="text-sm font-bold text-slate-400 italic mt-0.5">Press <kbd class="bg-slate-700 px-1.5 py-0.5 rounded text-xs not-italic font-mono">ENTER</kbd> to analyze</p>
+                </div>
+            </div>
+
+            <!-- Warning message -->
+            <div id="warning-msg" class="hidden mt-3 text-center text-amber-400 text-xs font-semibold bg-amber-400/10 border border-amber-400/30 rounded-lg py-2">
+                ⚠️ Please type something before submitting!
+            </div>
+        </div>
+
+        <!-- Results Area (Hidden by default) -->
+        <div id="result-area" class="hidden animate__animated animate__zoomIn">
+
+            <div class="flex items-center gap-6 mb-8 border-b border-white/10 pb-8">
+                <div id="score-ring"
+                    class="relative flex-shrink-0 w-32 h-32 rounded-full border-[10px] flex items-center justify-center pulse-ring">
+                    <div class="text-center">
+                        <span id="final-score" class="text-2xl font-black block leading-none">0%</span>
+                        <span class="text-[9px] text-slate-500 uppercase tracking-wider">stress</span>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h2 id="status-text" class="text-3xl font-black tracking-tight"></h2>
+                    <p id="status-desc" class="text-slate-400 text-sm mt-1 leading-relaxed"></p>
+                    <div class="flex gap-4 mt-3">
+                        <div class="stat-chip text-center">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Time</p>
+                            <p id="result-time" class="text-base font-mono font-bold text-white">-</p>
+                        </div>
+                        <div class="stat-chip text-center">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Accuracy</p>
+                            <p id="result-accuracy" class="text-base font-mono font-bold text-white">-</p>
+                        </div>
+                        <div class="stat-chip text-center">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-wider">WPM</p>
+                            <p id="result-wpm" class="text-base font-mono font-bold text-white">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-blue-400 text-xs font-bold uppercase mb-4 tracking-widest">🔬 Recommended Recovery Protocol</h3>
+            <div id="recovery-steps" class="space-y-3">
+                <!-- Instructions injected here by JS -->
+            </div>
+
+            <button id="restart-btn" class="restart-btn" onclick="restartAnalysis()">
+                ↻ &nbsp; Restart Analysis
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const TARGET = "Peace begins with a relaxed mind and a steady breath.";
+        const box = document.getElementById('typing-box');
+        const timerEl = document.getElementById('timer');
+        const warningMsg = document.getElementById('warning-msg');
+
+        let startTime = null;
+        let timerInterval = null;
+        let running = false;
+
+        // Trim the textarea default whitespace on load
+        box.value = '';
+
+        // Start timer on first keypress (not Enter)
+        box.addEventListener('keydown', (e) => {
+            // Start timer on first character (not Enter, not just modifier keys)
+            if (!running && e.key !== 'Enter' && e.key.length === 1) {
+                startTime = Date.now();
+                running = true;
+                timerInterval = setInterval(() => {
+                    timerEl.textContent = ((Date.now() - startTime) / 1000).toFixed(1) + "s";
+                }, 100);
+            }
+
+            // Submit on Enter
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = box.value.trim();
+                if (!val) {
+                    // Show warning if user hasn't typed anything
+                    warningMsg.classList.remove('hidden');
+                    setTimeout(() => warningMsg.classList.add('hidden'), 3000);
+                    return;
+                }
+                if (!running) {
+                    // Edge case: pasted content, no keydown before Enter
+                    startTime = Date.now();
+                }
+                processResults();
+            }
+        });
+
+        // Hide warning as soon as they start typing
+        box.addEventListener('input', () => {
+            warningMsg.classList.add('hidden');
+        });
+
+        function calculateErrors(target, input) {
+            let errors = Math.abs(target.length - input.length);
+            const minLen = Math.min(target.length, input.length);
+            for (let i = 0; i < minLen; i++) {
+                if (target[i] !== input[i]) errors++;
+            }
+            return errors;
+        }
+
+        function processResults() {
+            clearInterval(timerInterval);
+
+            const endTime = Date.now();
+            const timeSeconds = startTime ? (endTime - startTime) / 1000 : 0;
+            const input = box.value.trim();
+
+            // Error & accuracy calculation
+            const errors = calculateErrors(TARGET, input);
+            const accuracy = Math.max(0, ((TARGET.length - errors) / TARGET.length) * 100);
+
+            // WPM calculation
+            const wordCount = input.split(/\s+/).filter(w => w).length;
+            const wpm = timeSeconds > 0 ? Math.round(wordCount / (timeSeconds / 60)) : 0;
+
+            // Stress score: weighted by errors and typing speed anomalies
+            let stressScore = Math.round((errors * 8) + (wpm / 1.8));
+            stressScore = Math.min(100, Math.max(5, stressScore));
+
+            showOutput(stressScore, timeSeconds, accuracy, wpm);
+        }
+
+        function showOutput(score, time, accuracy, wpm) {
+            document.getElementById('test-area').classList.add('hidden');
+            const resultArea = document.getElementById('result-area');
+            resultArea.classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = score + "%";
+            document.getElementById('result-time').textContent = time.toFixed(1) + "s";
+            document.getElementById('result-accuracy').textContent = accuracy.toFixed(1) + "%";
+            document.getElementById('result-wpm').textContent = wpm;
+
+            const statusEl = document.getElementById('status-text');
+            const descEl = document.getElementById('status-desc');
+            const ring = document.getElementById('score-ring');
+            const stepsEl = document.getElementById('recovery-steps');
+
+            let data;
+
+            if (score < 30) {
+                data = {
+                    title: "ZEN STATE",
+                    color: "#10b981",
+                    desc: "Optimal cognitive performance. Your mind is calm and focused.",
+                    advice: [
+                        "🧬 <b>Maintain Flow:</b> Your focus is peaked. Avoid checking notifications for the next 45 mins.",
+                        "💧 <b>Hydration:</b> Sip water to keep your neural processing speed consistent.",
+                        "🧘 <b>Micro-gratitude:</b> Take 10 seconds to acknowledge one thing you're proud of today."
+                    ]
+                };
+            } else if (score < 55) {
+                data = {
+                    title: "BALANCED",
+                    color: "#3b82f6",
+                    desc: "Healthy alertness with slight fatigue. Manageable stress level.",
+                    advice: [
+                        "👀 <b>20-20-20 Rule:</b> Look at an object 20 feet away for 20 seconds to relax eye muscles.",
+                        "🪑 <b>Posture Check:</b> Roll your shoulders back and uncross your legs to improve blood flow.",
+                        "🌬️ <b>Single Breath:</b> Take one very deep inhale through the nose and a long 'sigh' exhale."
+                    ]
+                };
+            } else if (score < 80) {
+                data = {
+                    title: "AGITATED",
+                    color: "#f59e0b",
+                    desc: "Neural stress signals detected. Your mind needs a short reset.",
+                    advice: [
+                        "😮‍💨 <b>Box Breathing:</b> Inhale 4s → Hold 4s → Exhale 4s → Hold 4s. Repeat 3 times.",
+                        "🖐️ <b>5-4-3-2-1 Grounding:</b> Name 5 things you see and 4 things you can touch right now.",
+                        "☕ <b>Caffeine Halt:</b> Avoid further stimulants for the next 3 hours."
+                    ]
+                };
+            } else {
+                data = {
+                    title: "BURNOUT",
+                    color: "#ef4444",
+                    desc: "Critical cognitive overload detected. Immediate intervention recommended.",
+                    advice: [
+                        "🚶 <b>Immediate Exit:</b> Physically leave your desk. Walk for at least 2 minutes.",
+                        "❄️ <b>Thermal Reset:</b> Splash cold water on your face or hold a cold beverage container.",
+                        "📵 <b>Digital Fast:</b> Put your phone in another room for 15 minutes. Your brain needs silence."
+                    ]
+                };
+            }
+
+            statusEl.textContent = data.title;
+            statusEl.style.color = data.color;
+            ring.style.borderColor = data.color;
+            ring.style.boxShadow = `0 0 30px ${data.color}40`;
+            descEl.textContent = data.desc;
+
+            stepsEl.innerHTML = data.advice.map(s => `
+                <div class="recovery-card text-sm leading-relaxed" style="border-left-color: ${data.color}">
+                    ${s}
+                </div>
+            `).join('');
+        }
+
+        function restartAnalysis() {
+            // Reset all state
+            clearInterval(timerInterval);
+            running = false;
+            startTime = null;
+            timerEl.textContent = '0.0s';
+            box.value = '';
+            warningMsg.classList.add('hidden');
+
+            document.getElementById('test-area').classList.remove('hidden');
+            document.getElementById('result-area').classList.add('hidden');
+
+            setTimeout(() => box.focus(), 100);
+        }
+    </script>
+
+</body>
+</html>

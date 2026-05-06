@@ -1,0 +1,273 @@
+/* =========================================
+   AURA — Behavioral Stress Analyzer
+   Global Stylesheet
+   Author: DILRAG MADHURESH V | 25MCAR0266
+   ========================================= */
+
+/* --- Google Font Import (fallback) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+
+/* --- CSS Reset & Base --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Root Color Tokens --- */
+:root {
+    --color-bg:          #0f172a;
+    --color-surface:     rgba(255, 255, 255, 0.03);
+    --color-border:      rgba(255, 255, 255, 0.1);
+    --color-text:        #f1f5f9;
+    --color-muted:       #94a3b8;
+    --color-subtle:      #475569;
+    --color-accent:      #3b82f6;
+    --color-accent-glow: rgba(59, 130, 246, 0.2);
+
+    --color-zen:         #10b981;
+    --color-balanced:    #3b82f6;
+    --color-agitated:    #f59e0b;
+    --color-burnout:     #ef4444;
+
+    --radius-sm:  8px;
+    --radius-md:  14px;
+    --radius-lg:  24px;
+    --radius-xl:  32px;
+
+    --shadow-glow: 0 0 80px rgba(59, 130, 246, 0.06);
+    --shadow-card: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Body & Background --- */
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Subtle grid background */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- Glass Card --- */
+.glass {
+    position: relative;
+    z-index: 1;
+    background: var(--color-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 700px;
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+/* --- Typography --- */
+h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    background: linear-gradient(135deg, #60a5fa, #818cf8, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h2 {
+    font-size: 1.75rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+}
+
+h3 {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-accent);
+}
+
+/* --- Target Text Box --- */
+.target-box {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Typing Input --- */
+#typing-box {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.9);
+    border: 2px solid rgba(100, 116, 139, 0.3);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    font-size: 1.1rem;
+    color: var(--color-text);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    resize: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#typing-box:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-accent-glow);
+}
+
+#typing-box::placeholder {
+    color: var(--color-subtle);
+    font-style: italic;
+}
+
+/* --- Score Ring --- */
+#score-ring {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    border-width: 10px;
+    border-style: solid;
+    border-color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: pulse-ring 2s infinite;
+    transition: border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+@keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    50%       { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
+}
+
+/* --- Recovery Cards --- */
+.recovery-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.recovery-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateX(4px);
+}
+
+/* --- Stat Chips --- */
+.stat-chip {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(100, 116, 139, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+}
+
+/* --- Buttons --- */
+.restart-btn,
+button[onclick="window.location.reload()"] {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+    margin-top: 2rem;
+}
+
+.restart-btn:hover,
+button[onclick="window.location.reload()"]:hover {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* --- Warning Message --- */
+.warning-msg {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 0.75rem;
+}
+
+/* --- Utility: hidden class --- */
+.hidden {
+    display: none !important;
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.4);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.7);
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+    .glass {
+        padding: 1.5rem;
+        border-radius: var(--radius-md);
+    }
+
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    #score-ring {
+        width: 5.5rem;
+        height: 5.5rem;
+        border-width: 8px;
+    }
+}
